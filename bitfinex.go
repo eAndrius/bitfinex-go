@@ -448,9 +448,14 @@ func (api *API) post(url string, payload interface{}) (body []byte, err error) {
 	// POST
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", APIURL+url, nil)
+	if err != nil {
+		return
+	}
+
 	req.Header.Add("X-BFX-APIKEY", api.APIKey)
 	req.Header.Add("X-BFX-PAYLOAD", payloadBase64)
 	req.Header.Add("X-BFX-SIGNATURE", signature)
+
 	resp, err := client.Do(req)
 	defer resp.Body.Close()
 	if err != nil {
