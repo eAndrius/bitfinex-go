@@ -421,10 +421,10 @@ func (api *API) CancelActiveOffers() (err error) {
 
 func (api *API) get(url string) (body []byte, err error) {
 	resp, err := http.Get(APIURL + url)
-	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 
 	body, err = ioutil.ReadAll(resp.Body)
 	return
@@ -457,10 +457,10 @@ func (api *API) post(url string, payload interface{}) (body []byte, err error) {
 	req.Header.Add("X-BFX-SIGNATURE", signature)
 
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 
 	body, err = ioutil.ReadAll(resp.Body)
 	return
