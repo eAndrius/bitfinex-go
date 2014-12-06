@@ -140,6 +140,8 @@ func New(key, secret string) (api *API) {
 // Ticker returns innermost bid and asks and information on the most recent trade,
 //	as well as high, low and volume of the last 24 hours.
 func (api *API) Ticker(symbol string) (ticker Ticker, err error) {
+	symbol = strings.ToLower(symbol)
+
 	body, err := api.get("/v1/ticker/" + symbol)
 	if err != nil {
 		return
@@ -162,6 +164,8 @@ func (api *API) Ticker(symbol string) (ticker Ticker, err error) {
 
 // Stats return various statistics about the requested pairs.
 func (api *API) Stats(symbol string) (stats Stats, err error) {
+	symbol = strings.ToLower(symbol)
+
 	body, err := api.get("/v1/stats/" + symbol)
 	if err != nil {
 		return
@@ -184,6 +188,8 @@ func (api *API) Stats(symbol string) (stats Stats, err error) {
 
 // Lendbook returns the full lend book.
 func (api *API) Lendbook(currency string, limitBids, limitAsks int) (lendbook Lendbook, err error) {
+	currency = strings.ToLower(currency)
+
 	body, err := api.get("/v1/lendbook/" + currency + "?limit_bids=" + strconv.Itoa(limitBids) + "&limit_asks=" + strconv.Itoa(limitAsks))
 	if err != nil {
 		return
@@ -355,6 +361,9 @@ func (api *API) ActiveOffers() (offers Offers, err error) {
 // period (integer): Number of days of the loan (in days)
 // direction (string): Either "lend" or "loan".
 func (api *API) NewOffer(currency string, amount, rate float64, period int, direction string) (offer Offer, err error) {
+	currency = strings.ToUpper(currency)
+	direction = strings.ToLower(direction)
+
 	request := struct {
 		URL       string  `json:"request"`
 		Nonce     string  `json:"nonce"`
@@ -409,6 +418,27 @@ func (api *API) CancelActiveOffers() (err error) {
 
 		if err != nil {
 			return
+		}
+	}
+
+	return
+}
+
+// CancelActiveOffersByCurrency ...
+func (api *API) CancelActiveOffersByCurrency(currency string) (err error) {
+	currency = strings.ToLower(currency)
+
+	offers, err := api.ActiveOffers()
+	if err != nil {
+		return
+	}
+
+	for _, o := range offers {
+		if strings.ToLower(o.Currency) == currency {
+			err = api.CancelOffer(o.ID)
+			if err != nil {
+				return
+			}
 		}
 	}
 
