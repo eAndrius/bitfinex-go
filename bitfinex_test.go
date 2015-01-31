@@ -52,6 +52,15 @@ func TestStats(t *testing.T) {
 	}
 }
 
+func TestOrderbook(t *testing.T) {
+	// Test normal request
+	orderbook, err := apiPublic.Orderbook("btcusd", 2, 2, 1)
+	if err != nil || len(orderbook.Asks) != 2 || len(orderbook.Bids) != 2 {
+		t.Error("Failed: " + err.Error())
+		return
+	}
+}
+
 func TestLendbook(t *testing.T) {
 	// Test normal request
 	lendbook, err := apiPublic.Lendbook("btc", 2, 2)

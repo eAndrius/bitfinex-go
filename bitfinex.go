@@ -64,6 +64,19 @@ type Lendbook struct {
 	Asks []LendbookOffer // asks (array of loan offers)
 }
 
+// Orderbook ... Public (NEW)
+type Orderbook struct {
+	Bids []OrderbookOffer // bids (array of bid offers)
+	Asks []OrderbookOffer // asks (array of ask offers)
+}
+
+// OrderbookOffer ... (NEW)
+type OrderbookOffer struct {
+	Price     float64 `json:"price,string"`     // price
+	Amount    float64 `json:"amount,string"`    // amount (decimal)
+	Timestamp float64 `json:"timestamp,string"` // time
+}
+
 // LendbookOffer ...
 type LendbookOffer struct {
 	Rate      float64 `json:"rate,string"`      // rate (rate in % per 365 days)
@@ -181,6 +194,23 @@ func (api *API) Stats(symbol string) (stats Stats, err error) {
 		}
 
 		return stats, errors.New("API: " + errorMessage.Message)
+	}
+
+	return
+}
+
+// Orderbook returns the full order book.
+func (api *API) Orderbook(symbol string, limitBids, limitAsks, group int) (orderbook Orderbook, err error) {
+	symbol = strings.ToLower(symbol)
+
+	body, err := api.get("/v1/book/" + symbol + "?limit_bids=" + strconv.Itoa(limitBids) + "&limit_asks=" + strconv.Itoa(limitAsks) + "&group=" + strconv.Itoa(group))
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(body, &orderbook)
+	if err != nil {
+		return
 	}
 
 	return
