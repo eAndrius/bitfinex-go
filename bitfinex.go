@@ -103,6 +103,23 @@ type WalletKey struct {
 // WalletBalances ...
 type WalletBalances map[WalletKey]WalletBalance
 
+// MyTrades ... (NEW)
+type MyTrades []MyTrade
+
+// MyTrade ... (NEW)
+type MyTrade struct {
+	Price       float64 `json:"price,string"`      // price
+	Amount      float64 `json:"amount,string"`     // amount (decimal)
+	Timestamp   float64 `json:"timestamp,string"`  // time
+	Until       float64 `json:"until,string"`      // until (time): return only trades before or a the time specified here
+	Exchange    string  `json:"exchange"`          // exchange
+	Type        string  `json:"type"`              // type - "Sell" or "Buy"
+	FeeCurrency string  `json:"fee_currency"`      // fee_currency (string) Currency you paid this trade's fee in
+	FeeAmount   float64 `json:"fee_amount,string"` // fee_amount (decimal) Amount of fees you paid for this trade
+	TID         int     `json:"tid"`               // tid (integer): unique identification number of the trade
+	OrderId     int     `json:"order_id"`          // order_id (integer) unique identification number of the parent order of the trade
+}
+
 // Offer ...
 type Offer struct {
 	ID              int     `json:"id"`
@@ -280,6 +297,43 @@ func (api *API) WalletBalances() (wallet WalletBalances, err error) {
 		wallet[WalletKey{w.Type, w.Currency}] = w
 	}
 
+	return
+}
+
+// MyTrades returns an array of your past trades for the given symbol.
+func (api *API) MyTrades(symbol string, timestamp string, limitTrades int) (mytrades MyTrades, err error) {
+	symbol = strings.ToLower(symbol)
+
+	request := struct {
+		URL         string `json:"request"`
+		Nonce       string `json:"nonce"`
+		Symbol      string `json:"symbol"`
+		Timestamp   string `json:"timestamp"`
+		LimitTrades int    `json:"limit_trades"`
+	}{
+		URL:         "/v1/mytrades",
+		Nonce:       strconv.FormatInt(time.Now().UnixNano(), 10),
+		Symbol:      symbol,
+		Timestamp:   timestamp,
+		LimitTrades: limitTrades,
+	}
+
+	body, err := api.post(request.URL, request)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(body, &mytrades)
+	if err != nil { // Failed to unmarshal expected message
+		// Attempt to unmarshal the error message
+		errorMessage := ErrorMessage{}
+		err = json.Unmarshal(body, &errorMessage)
+		if err != nil { // Not expected message and not expected error, bailing...
+			return
+		}
+
+		return nil, errors.New("API: " + errorMessage.Message)
+	}
 	return
 }
 

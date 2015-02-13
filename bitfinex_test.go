@@ -78,6 +78,23 @@ func TestLendbook(t *testing.T) {
 	}
 }
 
+func TestMyTrades(t *testing.T) {
+	checkEnv(t)
+
+	// Test normal request
+	tn := strconv.FormatInt(0, 10)
+	mytrades, err := apiPrivate.MyTrades("BTCUSD", tn, 50)
+	if err != nil {
+		t.Error("Failed: " + err.Error())
+		return
+	}
+
+	if len(mytrades) == 0 {
+		t.Log("No trades detected, please inspect")
+		return
+	}
+}
+
 func TestWalletBalances(t *testing.T) {
 	checkEnv(t)
 
