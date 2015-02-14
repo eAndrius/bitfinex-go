@@ -52,6 +52,15 @@ func TestStats(t *testing.T) {
 	}
 }
 
+func TestOrderbook(t *testing.T) {
+	// Test normal request
+	orderbook, err := apiPublic.Orderbook("btcusd", 2, 2, 1)
+	if err != nil || len(orderbook.Asks) != 2 || len(orderbook.Bids) != 2 {
+		t.Error("Failed: " + err.Error())
+		return
+	}
+}
+
 func TestLendbook(t *testing.T) {
 	// Test normal request
 	lendbook, err := apiPublic.Lendbook("btc", 2, 2)
@@ -65,6 +74,23 @@ func TestLendbook(t *testing.T) {
 	lendbook, err = apiPublic.Lendbook("random", 2, 2)
 	if err == nil {
 		t.Error("Failed")
+		return
+	}
+}
+
+func TestMyTrades(t *testing.T) {
+	checkEnv(t)
+
+	// Test normal request
+	tn := strconv.FormatInt(0, 10)
+	mytrades, err := apiPrivate.MyTrades("BTCUSD", tn, 50)
+	if err != nil {
+		t.Error("Failed: " + err.Error())
+		return
+	}
+
+	if len(mytrades) == 0 {
+		t.Log("No trades detected, please inspect")
 		return
 	}
 }
