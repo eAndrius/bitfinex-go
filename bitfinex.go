@@ -4,6 +4,7 @@
 package bitfinex
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha512"
 	"encoding/base64"
@@ -19,7 +20,7 @@ import (
 
 const (
 	// APIURL points to Bitfinex API URL, found at https://www.bitfinex.com/pages/API
-	APIURL = "https://api.bitfinex.com/"
+	APIURL = "https://api.bitfinex.com"
 	// LEND ...
 	LEND = "lend"
 	// BORROW ...
@@ -561,7 +562,7 @@ func (api *API) post(url string, payload interface{}) (body []byte, err error) {
 
 	// POST
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", APIURL+url, nil)
+	req, err := http.NewRequest("POST", APIURL+url, bytes.NewBuffer(payloadJSON))
 	if err != nil {
 		return
 	}
