@@ -535,7 +535,11 @@ func (api *API) CancelActiveOffersByCurrency(currency string) (err error) {
 ///////////////////////////////////////
 
 func (api *API) get(url string) (body []byte, err error) {
-	resp, err := http.Get(APIURL + url)
+	client := http.Client{
+		Timeout: time.Duration(30 * time.Second),
+	}
+
+	resp, err := client.Get(APIURL + url)
 	if err != nil {
 		return
 	}
@@ -561,7 +565,6 @@ func (api *API) post(url string, payload interface{}) (body []byte, err error) {
 	signature := hex.EncodeToString(h.Sum(nil))
 
 	// POST
-	client := &http.Client{}
 	req, err := http.NewRequest("POST", APIURL+url, bytes.NewBuffer(payloadJSON))
 	if err != nil {
 		return
@@ -570,6 +573,10 @@ func (api *API) post(url string, payload interface{}) (body []byte, err error) {
 	req.Header.Add("X-BFX-APIKEY", api.APIKey)
 	req.Header.Add("X-BFX-PAYLOAD", payloadBase64)
 	req.Header.Add("X-BFX-SIGNATURE", signature)
+
+	client := http.Client{
+		Timeout: time.Duration(30 * time.Second),
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
