@@ -90,7 +90,7 @@ func TestMyTrades(t *testing.T) {
 	}
 
 	if len(mytrades) == 0 {
-		t.Log("No trades detected, please inspect")
+		t.Log("No BTC/USD trades detected, please inspect")
 		return
 	}
 }
@@ -121,13 +121,13 @@ func TestWalletBalances(t *testing.T) {
 func TestNewOffer(t *testing.T) {
 	checkEnv(t)
 
-	offer, err := apiPrivate.NewOffer("BTC", 0.2, 365.0, 2, LEND)
+	offer, err := apiPrivate.NewOffer("BTC", 0.5, 365.0, 2, LEND)
 	if err != nil || offer.ID == 0 {
 		t.Error("Failed: " + err.Error())
 		return
 	}
 
-	t.Log("Placed a new offer of 0.2BTC @ 1%/day for 2 days with ID: " + strconv.Itoa(offer.ID) + ", please inspect")
+	t.Log("Placed a new offer of 0.5BTC @ 1%/day for 2 days with ID: " + strconv.Itoa(offer.ID) + ", please inspect")
 }
 
 func TestActiveOffers(t *testing.T) {
