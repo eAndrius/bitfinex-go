@@ -173,7 +173,7 @@ func New(key, secret string) (api *API) {
 func (api *API) Ticker(symbol string) (ticker Ticker, err error) {
 	symbol = strings.ToLower(symbol)
 
-	body, err := api.get("/v1/ticker/" + symbol)
+	body, err := api.get("/v1/pubticker/" + symbol)
 	if err != nil {
 		return
 	}
