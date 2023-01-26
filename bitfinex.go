@@ -86,6 +86,7 @@ type LendbookOffer struct {
 	Timestamp float64 `json:"timestamp,string"` // timestamp (time)
 	FRRString string  `json:"frr"`              // frr (yes/no): "Yes" if the offer is at Flash Return Rate, "No" if the offer is at fixed rate
 	FRR       bool
+	Hidden    int     `json:"hidden"`          // 0 if false, 1 if true
 }
 
 // WalletBalance ...
@@ -131,7 +132,7 @@ type Offer struct {
 	Type            string  `json:"type"`                    // Either "market" / "limit" / "stop" / "trailing-stop".
 	Timestamp       float64 `json:"timestamp,string"`        // The timestamp the offer was submitted.
 	Live            bool    `json:"is_live,bool"`            // Could the offer still be filled?
-	Cacelled        bool    `json:"is_cancelled,bool"`       // Has the offer been cancelled?
+	Cancelled        bool    `json:"is_cancelled,bool"`       // Has the offer been cancelled?
 	ExecutedAmount  float64 `json:"executed_amount,string"`  // How much of the offer has been executed so far in its history?
 	RemainingAmount float64 `json:"remaining_amount,string"` // How much is still remaining to be submitted?
 	OriginalAmount  float64 `json:"original_amount,string"`  // What was the offer originally submitted for?
@@ -173,7 +174,7 @@ func New(key, secret string) (api *API) {
 func (api *API) Ticker(symbol string) (ticker Ticker, err error) {
 	symbol = strings.ToLower(symbol)
 
-	body, err := api.get("/v1/pubticker/" + symbol)
+	body, err := api.get("/v2/pubticker/" + symbol)
 	if err != nil {
 		return
 	}
@@ -197,7 +198,7 @@ func (api *API) Ticker(symbol string) (ticker Ticker, err error) {
 func (api *API) Stats(symbol string) (stats Stats, err error) {
 	symbol = strings.ToLower(symbol)
 
-	body, err := api.get("/v1/stats/" + symbol)
+	body, err := api.get("/v2/stats/" + symbol)
 	if err != nil {
 		return
 	}
@@ -221,7 +222,7 @@ func (api *API) Stats(symbol string) (stats Stats, err error) {
 func (api *API) Orderbook(symbol string, limitBids, limitAsks, group int) (orderbook Orderbook, err error) {
 	symbol = strings.ToLower(symbol)
 
-	body, err := api.get("/v1/book/" + symbol + "?limit_bids=" + strconv.Itoa(limitBids) + "&limit_asks=" + strconv.Itoa(limitAsks) + "&group=" + strconv.Itoa(group))
+	body, err := api.get("/v2/book/" + symbol + "?limit_bids=" + strconv.Itoa(limitBids) + "&limit_asks=" + strconv.Itoa(limitAsks) + "&group=" + strconv.Itoa(group))
 	if err != nil {
 		return
 	}
@@ -238,7 +239,7 @@ func (api *API) Orderbook(symbol string, limitBids, limitAsks, group int) (order
 func (api *API) Lendbook(currency string, limitBids, limitAsks int) (lendbook Lendbook, err error) {
 	currency = strings.ToLower(currency)
 
-	body, err := api.get("/v1/lendbook/" + currency + "?limit_bids=" + strconv.Itoa(limitBids) + "&limit_asks=" + strconv.Itoa(limitAsks))
+	body, err := api.get("/v2/lendbook/" + currency + "?limit_bids=" + strconv.Itoa(limitBids) + "&limit_asks=" + strconv.Itoa(limitAsks))
 	if err != nil {
 		return
 	}
@@ -271,7 +272,7 @@ func (api *API) WalletBalances() (wallet WalletBalances, err error) {
 		URL   string `json:"request"`
 		Nonce string `json:"nonce"`
 	}{
-		"/v1/balances",
+		"/v2/balances",
 		strconv.FormatInt(time.Now().UnixNano(), 10),
 	}
 
@@ -312,7 +313,7 @@ func (api *API) MyTrades(symbol string, timestamp string, limitTrades int) (mytr
 		Timestamp   string `json:"timestamp"`
 		LimitTrades int    `json:"limit_trades"`
 	}{
-		URL:         "/v1/mytrades",
+		URL:         "/v2/mytrades",
 		Nonce:       strconv.FormatInt(time.Now().UnixNano(), 10),
 		Symbol:      symbol,
 		Timestamp:   timestamp,
@@ -345,7 +346,7 @@ func (api *API) CancelOffer(id int) (err error) {
 		Nonce   string `json:"nonce"`
 		OfferID int    `json:"offer_id"`
 	}{
-		"/v1/offer/cancel",
+		"/v2/offer/cancel",
 		strconv.FormatInt(time.Now().UnixNano(), 10),
 		id,
 	}
@@ -385,7 +386,7 @@ func (api *API) ActiveCredits() (credits Credits, err error) {
 		URL   string `json:"request"`
 		Nonce string `json:"nonce"`
 	}{
-		"/v1/credits",
+		"/v2/credits",
 		strconv.FormatInt(time.Now().UnixNano(), 10),
 	}
 
@@ -415,7 +416,7 @@ func (api *API) ActiveOffers() (offers Offers, err error) {
 		URL   string `json:"request"`
 		Nonce string `json:"nonce"`
 	}{
-		"/v1/offers",
+		"/v2/offers",
 		strconv.FormatInt(time.Now().UnixNano(), 10),
 	}
 
@@ -458,7 +459,7 @@ func (api *API) NewOffer(currency string, amount, rate float64, period int, dire
 		Period    int     `json:"period"`
 		Direction string  `json:"direction"`
 	}{
-		"/v1/offer/new",
+		"/v2/offer/new",
 		strconv.FormatInt(time.Now().UnixNano(), 10),
 		currency,
 		amount,
